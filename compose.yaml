@@ -1,0 +1,58 @@
+version: '3.9'
+services:
+  client:
+    image: pizza-manager-client
+    restart: always
+    build:
+      context: client
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
+    volumes:
+      - ./client:/usr/src/client
+      - /client/node_modules
+    links:
+      - api
+    networks:
+      - pizza-manager-network
+  api:
+    image: pizza-manager-api
+    restart: unless-stopped
+    build:
+      context: api
+      dockerfile: Dockerfile
+    ports: 
+      - 5000:5000
+    depends_on:
+      - postgres
+    volumes:
+      - ./api:/usr/src/api
+      - /api/node_modules
+  postgres:
+    image: postgres:11.5
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=pizza_manager
+    ports:
+      - 5432:5432
+    networks:
+      - pizza-manager-network
+    volumes:
+      - ./postgres-db:/var/lib/postgresql/data
+  pgadmin:
+      container_name: pgadmin4_container
+      image: dpage/pgadmin4
+      restart: always
+      environment:
+        PGADMIN_DEFAULT_EMAIL: admin@admin.com
+        PGADMIN_DEFAULT_PASSWORD: root
+      ports:
+        - "5050:80"
+      networks:
+      - pizza-manager-network
+networks:
+  pizza-manager-network:
+    
