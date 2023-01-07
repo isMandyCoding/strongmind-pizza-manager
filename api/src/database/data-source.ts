@@ -2,12 +2,12 @@ import { DataSource } from "typeorm"
 // import { ExampleEntity } from "../entities/ExampleEntity"
 
 export const AppDataSource = new DataSource({
-    type: "postgres",
-    host: 'pizza_mngr_db', // Docker network host
+    type: 'postgres',
+    host: 'db', // Docker network host (service name)
     port: 5432, // Docker container port
-    username: 'postgres', // Postgres image default username
-    password: process.env.POSTGRES_PASSWORD,
-    database: process.env.POSTGRES_DB,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     synchronize: true,
     logging: false,
     entities: [/* ExampleEntity */],

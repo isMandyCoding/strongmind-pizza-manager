@@ -2,7 +2,6 @@ version: '3.9'
 services:
   client:
     image: pizza-manager-client
-    container_name: pizza_mngr_client
     restart: always
     build:
       context: client
@@ -18,17 +17,17 @@ services:
       - /client/node_modules
     links:
       - api
-    networks:
-      - pizza-manager-network
   api:
     image: pizza-manager-api
-    container_name: pizza_mngr_api
     restart: unless-stopped
     build:
       context: api
       dockerfile: Dockerfile
     environment:
     - CHOKIDAR_USEPOLLING=true
+    - DB_USER=pizza_manager
+    - DB_PASSWORD=123
+    - DB_NAME=pizza_manager
     ports: 
       - 5000:5000
     depends_on:
@@ -38,7 +37,6 @@ services:
       - /api/node_modules
   db:
     image: postgres:11.5
-    container_name: pizza_mngr_db
     restart: always
     environment:
       - POSTGRES_USER=pizza_manager
@@ -46,12 +44,9 @@ services:
       - POSTGRES_DB=pizza_manager
     ports:
       - 5432:5432
-    networks:
-      - pizza-manager-network
     volumes:
-      - ./postgres-db:/var/lib/postgresql/data
+      - postgresDB:/var/lib/postgresql/data
   pgadmin:
-      container_name: pizza_mngr_pgadmin4
       image: dpage/pgadmin4
       restart: always
       environment:
@@ -59,8 +54,6 @@ services:
         PGADMIN_DEFAULT_PASSWORD: root
       ports:
         - "5050:80"
-      networks:
-      - pizza-manager-network
-networks:
-  pizza-manager-network:
+volumes:
+  postgresDB:
     
