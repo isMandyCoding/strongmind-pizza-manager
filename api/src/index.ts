@@ -1,5 +1,15 @@
+import "reflect-metadata";
 import express from "express";
 import cors from "cors";
+import createDBConnection from "./database/createDBConnection";
+
+const connectToDatabase = async () => {
+  try {
+    createDBConnection();
+  } catch(error) {
+    console.log(error);
+  }
+}
 
 const initializeExpress = (): void => {
   
@@ -21,4 +31,13 @@ const initializeExpress = (): void => {
   console.log(`Listening on port: ${port}`)
 }
 
-initializeExpress();
+
+const startServer = async (): Promise<void> => {
+  console.log("Connecting to database...");
+  await connectToDatabase();
+  console.log("Connected to DB.");
+  console.log("Starting server...");
+  initializeExpress();
+}
+
+startServer();

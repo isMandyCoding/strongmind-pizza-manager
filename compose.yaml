@@ -2,6 +2,7 @@ version: '3.9'
 services:
   client:
     image: pizza-manager-client
+    container_name: pizza_mngr_client
     restart: always
     build:
       context: client
@@ -21,6 +22,7 @@ services:
       - pizza-manager-network
   api:
     image: pizza-manager-api
+    container_name: pizza_mngr_api
     restart: unless-stopped
     build:
       context: api
@@ -30,14 +32,16 @@ services:
     ports: 
       - 5000:5000
     depends_on:
-      - postgres
+      - db
     volumes:
       - ./api:/usr/src/api
       - /api/node_modules
-  postgres:
+  db:
     image: postgres:11.5
+    container_name: pizza_mngr_db
     restart: always
     environment:
+      - POSTGRES_USER=pizza_manager
       - POSTGRES_PASSWORD=123
       - POSTGRES_DB=pizza_manager
     ports:
@@ -47,7 +51,7 @@ services:
     volumes:
       - ./postgres-db:/var/lib/postgresql/data
   pgadmin:
-      container_name: pgadmin4_container
+      container_name: pizza_mngr_pgadmin4
       image: dpage/pgadmin4
       restart: always
       environment:
