@@ -1,5 +1,5 @@
-// import { CommonValidator } from "./CommonValidator";
+import { CommonValidator } from "./CommonValidator";
 
-// export class ToppingValidator extends CommonValidator {
+export class ToppingValidator extends CommonValidator {
 
-// }
+}
