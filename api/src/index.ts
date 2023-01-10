@@ -1,7 +1,8 @@
 import "reflect-metadata";
-import express from "express";
+import express, { Application } from "express";
 import cors from "cors";
 import createDBConnection from "./database/createDBConnection";
+import { ToppingController } from "./controllers/ToppingController";
 
 const connectToDatabase = async () => {
   try {
@@ -13,7 +14,7 @@ const connectToDatabase = async () => {
 
 const initializeExpress = (): void => {
   
-  const app: express.Application = express();
+  const app: Application = express();
   
   
   app.use(cors());
@@ -25,7 +26,8 @@ const initializeExpress = (): void => {
       status: "The API is working! At least mostly...",
     })
   });
-  
+
+  app.get("/toppings", ToppingController.getToppings);
   const port: number = Number(process.env.PORT) || 5000;
   app.listen(port);
   console.log(`Listening on port: ${port}`)
