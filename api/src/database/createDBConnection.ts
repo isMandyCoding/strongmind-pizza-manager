@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm";
-import { AppDataSource } from "./data-source";
+import { AppDataSource } from "./AppDataSource";
 
 const createDBConnection: () => Promise<DataSource> = async () => {
   return AppDataSource.initialize();

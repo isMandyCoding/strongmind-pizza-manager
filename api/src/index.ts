@@ -12,7 +12,7 @@ const connectToDatabase = async () => {
   }
 }
 
-const initializeExpress = (): void => {
+const initializeExpress = (): Application => {
   
   const app: Application = express();
   
@@ -30,16 +30,19 @@ const initializeExpress = (): void => {
   app.get("/toppings", ToppingController.getToppings);
   const port: number = Number(process.env.PORT) || 5000;
   app.listen(port);
-  console.log(`Listening on port: ${port}`)
+  console.log(`Listening on port: ${port}`);
+  return app;
 }
 
 
-const startServer = async (): Promise<void> => {
+const startServer = async (): Promise<Application> => {
   console.log("Connecting to database...");
   await connectToDatabase();
   console.log("Connected to DB.");
   console.log("Starting server...");
-  initializeExpress();
+  return initializeExpress();
 }
 
 startServer();
+
+export default startServer;

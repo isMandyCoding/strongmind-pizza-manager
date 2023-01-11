@@ -1,22 +1,30 @@
-import { RequestHandler } from "express";
-import { PizzaRepository } from "../repositories/PizzaRepository";
+import { Request, Response } from "express";
+import { DeleteResult } from "typeorm";
+import { PizzaService } from "../services/PizzaService";
+import { DeleteResultView } from "../views/DeleteResultView";
+import { PizzaView } from "../views/PizzaView";
 
 export class PizzaController {
 
-  getPizzas: RequestHandler = () => {
-    PizzaRepository.find();
+  static getPizzas = async (req: Request, resp: Response): Promise<Response<PizzaView[]>> => {
+    console.error("Not implemented");
+    const pizzas = await PizzaService.getAllPizzas();
+    return resp.send(pizzas);
   }
 
-  createPizza: RequestHandler = () => {
+  static createPizza = async (req: Request, resp: Response): Promise<Response<PizzaView>> => {
     console.error("Not implemented");
+    return resp.send(new PizzaView({id: 1, name: "blah", toppings: []}));
   }
 
-  updatePizzaToppings: RequestHandler = () => {
+  static updatePizza = async (req: Request, resp: Response): Promise<Response<PizzaView>> => {
     console.error("Not implemented");
+    return resp.send(new PizzaView({id: 1, name: "blah", toppings: []}));
   }
 
-  deletePizza: RequestHandler = () => {
+  static deletePizza = async (req: Request, resp: Response): Promise<Response<DeleteResultView>> => {
     console.error("Not implemented");
+    return resp.send(new DeleteResultView(1, "success"));
   }
   
 }
