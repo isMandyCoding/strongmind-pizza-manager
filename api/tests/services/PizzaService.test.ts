@@ -1,11 +1,10 @@
-import { beforeAll, describe, expect, jest, it } from "@jest/globals";
+import { beforeEach, describe, expect, jest, it } from "@jest/globals";
 import { Pizza } from "../../src/database/entities/Pizza";
 import { Topping } from "../../src/database/entities/Topping";
 import { PizzaService } from "../../src/services/PizzaService";
 import { PizzaRepository } from "../../src/repositories/PizzaRepository";
 import { PizzaView } from "../../src/views/PizzaView";
 import { DeleteResult, UpdateResult } from "typeorm";
-import { beforeEach } from "node:test";
 
 jest.mock("../../src/repositories/PizzaRepository");
 

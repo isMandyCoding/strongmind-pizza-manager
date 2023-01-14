@@ -3,6 +3,7 @@ import { ToppingService } from "../../src/services/ToppingService";
 import { ToppingView } from "../../src/views/ToppingView";
 import { ToppingController } from "../../src/controllers/ToppingController";
 import { DeleteResultView } from "../../src/views/DeleteResultView";
+import { NextFunction, Request, request, Response, response, Send } from "express";
 jest.mock("../../src/services/ToppingService");
 
 describe("ToppingController", () => {
@@ -10,8 +11,10 @@ describe("ToppingController", () => {
   
   let MOCK_TOPPINGS: ToppingView[];
   let MOCK_TOPPING: ToppingView;
-  let req;
-  let resp;
+  let req: Request;
+  let resp: Response;
+  let next: NextFunction;
+  let mRespSend: jest.Mocked<Send>
 
 
   beforeEach(() => {
@@ -36,28 +39,27 @@ describe("ToppingController", () => {
       name: "Olives"
     });
 
-    req = {
-      body: MOCK_TOPPINGS,
-    };
+    req = jest.mocked(request);
 
-    resp = {
-      json: jest.fn(),
-      send: jest.fn()
-    }
+    
+    resp = jest.mocked(response);
+    mRespSend = jest.mocked(response.send);    
+
+    next = jest.fn();
   });
 
   it("getToppings should get all toppings", async () => {
     // Arrange
     const mToppingServiceGet = jest.mocked(ToppingService.getAllToppings);
-    mToppingServiceGet.mockResolvedValue(MOCK_TOPPINGS);
+    mToppingServiceGet.mockResolvedValue(MOCK_TOPPINGS); 
 
 
     // Act
-    await ToppingController.getToppings(req, resp);
+    await ToppingController.getToppings(req, resp, next);
 
     // Assert
-    expect(resp.send).toBeCalledTimes(1);
-    expect(resp.send).toBeCalledWith(MOCK_TOPPINGS);
+    expect(mRespSend).toBeCalledTimes(1);
+    expect(mRespSend).toBeCalledWith(MOCK_TOPPINGS);
     
   });
 
@@ -67,16 +69,16 @@ describe("ToppingController", () => {
       mToppingServiceCreate.mockResolvedValue(MOCK_TOPPING);
       req.body = {
         name: MOCK_TOPPING.name,
-      }
+      };
 
       // Act
-      await ToppingController.getToppings(req, resp);
+      await ToppingController.createTopping(req, resp, next);
 
       // Assert
       expect(mToppingServiceCreate).toBeCalledTimes(1);
-      expect(mToppingServiceCreate).toBeCalledWith(req.body);
-      expect(resp.send).toBeCalledTimes(1);
-      expect(resp.send).toBeCalledWith(MOCK_TOPPING);
+      expect(mToppingServiceCreate).toBeCalledWith(new ToppingView(req.body));
+      expect(mRespSend).toBeCalledTimes(1);
+      expect(mRespSend).toBeCalledWith(MOCK_TOPPING);
   });
 
   it("updateTopping should update topping", async () => {
@@ -91,13 +93,13 @@ describe("ToppingController", () => {
     }
 
     // Act
-    await ToppingController.updateTopping(req, resp);
+    await ToppingController.updateTopping(req, resp, next);
 
     // Assert
     expect(mTOppingServiceUpdate).toBeCalledTimes(1);
-    expect(mTOppingServiceUpdate).toBeCalledWith(req.body);
-    expect(resp.send).toBeCalledTimes(1);
-    expect(resp.send).toBeCalledWith(MOCK_TOPPING);
+    expect(mTOppingServiceUpdate).toBeCalledWith(new ToppingView(req.body));
+    expect(mRespSend).toBeCalledTimes(1);
+    expect(mRespSend).toBeCalledWith(MOCK_TOPPING);
   });
 
   it("deleteTopping should delete topping", async () => {
@@ -113,13 +115,13 @@ describe("ToppingController", () => {
     }
 
     // Act
-    await ToppingController.deleteTopping(req, resp);
+    await ToppingController.deleteTopping(req, resp, next);
 
     // Assert
     expect(mToppingServiceDelete).toBeCalledTimes(1);
-    expect(mToppingServiceDelete).toBeCalledWith(req.body);
-    expect(resp.send).toBeCalledTimes(1);
-    expect(resp.send).toBeCalledWith(deleteResult);
+    expect(mToppingServiceDelete).toBeCalledWith(new ToppingView(req.body));
+    expect(mRespSend).toBeCalledTimes(1);
+    expect(mRespSend).toBeCalledWith(deleteResult);
   });
 
 });

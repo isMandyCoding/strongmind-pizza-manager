@@ -3,6 +3,9 @@ import express, { Application } from "express";
 import cors from "cors";
 import createDBConnection from "./database/createDBConnection";
 import { ToppingController } from "./controllers/ToppingController";
+import { RouteNotFoundError } from "./errors/ClientSafeError";
+import { errorHandler } from "./middleware/errorHandler";
+import { ToppingRoutes } from "./routes/ToppingRoutes";
 
 const connectToDatabase = async () => {
   try {
@@ -21,13 +24,16 @@ const initializeExpress = (): Application => {
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
 
+  // Add routes
   app.get("/", (req, resp) => {
     resp.send({
-      status: "The API is working! At least mostly...",
+      status: "The API is working!",
     })
   });
+  ToppingRoutes(app);
+  app.use((req, resp, next) => next(new RouteNotFoundError(req.originalUrl)));
+  app.use(errorHandler)
 
-  app.get("/toppings", ToppingController.getToppings);
   const port: number = Number(process.env.PORT) || 5000;
   app.listen(port);
   console.log(`Listening on port: ${port}`);

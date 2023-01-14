@@ -1,4 +1,4 @@
-import { Entity,  Column, ManyToMany, JoinTable, BeforeInsert } from "typeorm";
+import { Entity,  Column, ManyToMany, JoinTable, BeforeInsert, AfterLoad } from "typeorm";
 import { Common } from "./Common";
 import { Topping } from "./Topping";
 
@@ -15,9 +15,11 @@ export class Pizza extends Common {
   })
   toppingComposit: string
   
-  // Creating a unique composit of topping names before insert to prevent duplicate pizzas
+  // Creating a unique composit of topping names before insert and after load to prevent duplicate pizzas
   @BeforeInsert()
+  @AfterLoad()
   combineToppingNames() {
     this.toppingComposit = this.toppings.map((topping) => topping.name).join(",");
   }
+
 }

@@ -1,10 +1,9 @@
-import { Length } from "class-validator";
-import { IsDefined } from "class-validator/types/decorator/decorators";
+import { Length, IsDefined } from "class-validator";
 
 export class CommonValidator {
   @IsDefined()
-  @Length(0, 50, {
-    message: "Name must be under 50 characters"
+  @Length(1, 50, {
+    message: "Name must be between 1 and 50 characters"
   })
   name: string;
 }

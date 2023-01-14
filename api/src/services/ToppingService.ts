@@ -1,32 +1,60 @@
 import { Topping } from "../database/entities/Topping";
+import { BadUserInputError, EntityNotFoundError } from "../errors/ClientSafeError";
 import { ToppingRepository } from "../repositories/ToppingRepository";
 import { DeleteResultView } from "../views/DeleteResultView";
 import { ToppingView } from "../views/ToppingView";
 
 export class ToppingService {
 
-  static createNewTopping = async (topping: ToppingView): Promise<ToppingView> => {
-    console.error("Not implemented");
-    throw Error("Not Implemented");
-    return topping;
+  static async rejectIfDuplicate(topping: ToppingView) {
+    const testTopping = await ToppingRepository.findOneBy({
+      name: topping.name
+    });
+    if (testTopping && testTopping.id !== topping.id) {
+      throw new BadUserInputError({
+        detail: "Duplicate Topping name is not allowed"
+      });
+    }
   }
 
-  static getAllToppings = async (): Promise<ToppingView[]> => {
-    const toppings = await ToppingRepository.find();
-    throw Error("Not Implemented");
-    return toppings;
+  static async findOneOrReject(topping: ToppingView): Promise<Topping> {
+    const toppingToFind = await ToppingRepository.findOneBy({
+      id: topping.id
+    });
+    if (!toppingToFind) {
+      throw new EntityNotFoundError("Topping");
+    }
+    return toppingToFind;
   }
 
-  static updateExistingTopping = async (topping: ToppingView): Promise<ToppingView> => {
-    console.error("Not implemented");
-    throw Error("Not Implemented");
-    return topping;
+  static async createNewTopping(topping: ToppingView): Promise<ToppingView> {
+    await this.rejectIfDuplicate(topping);
+    const newTopping = new Topping();
+    newTopping.name = topping.name;
+    const result = await ToppingRepository.save(newTopping);
+    return new ToppingView({
+      id: result.id,
+      name: result.name
+    });
   }
 
-  static deleteExistingTopping = async (topping: ToppingView): Promise<DeleteResultView> => {
-    console.error("Not implemented");
-    throw Error("Not Implemented");
-    return new DeleteResultView(topping.id ?? 0, "success");
+  static async getAllToppings(): Promise<ToppingView[]> {
+    const toppings: Topping[] = await ToppingRepository.find();
+    return toppings.map((topping) => new ToppingView(topping));
+  }
+
+  static async updateExistingTopping(topping: ToppingView): Promise<ToppingView> {
+    await this.rejectIfDuplicate(topping);
+    const toppingToUpdate = await this.findOneOrReject(topping);
+    toppingToUpdate.name = topping.name;
+    await ToppingRepository.save(toppingToUpdate);
+    return new ToppingView(toppingToUpdate);
+  }
+
+  static async deleteExistingTopping(topping: ToppingView): Promise<DeleteResultView> {
+    const toppingToDelete = await this.findOneOrReject(topping);
+    await ToppingRepository.delete(toppingToDelete);
+    return new DeleteResultView(toppingToDelete.id, "success");
   }
 
 }

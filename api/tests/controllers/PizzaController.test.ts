@@ -4,6 +4,7 @@ import { PizzaView } from "../../src/views/PizzaView";
 import { PizzaController } from "../../src/controllers/PizzaController";
 import { DeleteResultView } from "../../src/views/DeleteResultView";
 import { ToppingView } from "../../src/views/ToppingView";
+import { NextFunction, request, Request, Response, response } from "express";
 jest.mock("../../src/services/PizzaService");
 
 describe("PizzaController", () => {
@@ -12,8 +13,9 @@ describe("PizzaController", () => {
   let MOCK_TOPPINGS: ToppingView[];
   let MOCK_PIZZAS: PizzaView[];
   let MOCK_PIZZA: PizzaView;
-  let req;
-  let resp;
+  let req: Request;
+  let resp: Response;
+  let next: NextFunction;
 
 
   beforeEach(() => {
@@ -52,17 +54,12 @@ describe("PizzaController", () => {
       toppings: MOCK_TOPPINGS,
     }
 
-    req = {
-    };
+    req = jest.mocked(request);
 
-    resp = {
-      json: jest.fn(),
-      send: jest.fn().mockImplementation((item: any) => {
-        return {
-          body: item
-        }
-      })
-    }
+    resp = jest.mocked(response);
+    resp.send = jest.mocked(response.send);
+
+    next = jest.fn();
   });
 
   it("getPizzas should get all toppings", async () => {
@@ -72,7 +69,7 @@ describe("PizzaController", () => {
 
 
     // Act
-    const result = await PizzaController.getPizzas(req, resp);
+    const result = await PizzaController.getPizzas(req, resp, next);
 
     // Assert
     expect(result).toBe(MOCK_PIZZAS);
@@ -80,7 +77,7 @@ describe("PizzaController", () => {
     expect(resp.send).toBeCalledWith(MOCK_PIZZAS);
   });
 
-  it("createTopping should create new topping", async () => {
+  it("createPizza should create new topping", async () => {
       // Arrange
       const mPizzaServiceCreate = jest.mocked(PizzaService.createNewPizza);
       mPizzaServiceCreate.mockImplementation(async (pizza: PizzaView) => {
@@ -94,7 +91,7 @@ describe("PizzaController", () => {
       }
 
       // Act
-      await PizzaController.createPizza(req, resp);
+      await PizzaController.createPizza(req, resp, next);
 
       // Assert
       expect(mPizzaServiceCreate).toBeCalledTimes(1);
