@@ -3,7 +3,6 @@ import { ClientSafeError } from "../errors/ClientSafeError";
 
 export const errorHandler: ErrorRequestHandler = (error, req, resp, next) => {
   console.error(error);
-  console.log("Error Handler called")
 
   const isClientSafeError = error instanceof ClientSafeError;
 

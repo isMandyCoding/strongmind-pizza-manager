@@ -1,5 +1,5 @@
-import { validate, validateOrReject } from "class-validator";
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { validateOrReject } from "class-validator";
+import { NextFunction, Request, Response } from "express";
 import { BadUserInputError } from "../errors/ClientSafeError";
 import { errorCatcher } from "../errors/errorCatcher";
 import { ToppingService } from "../services/ToppingService";
@@ -16,7 +16,7 @@ export class ToppingController {
       return await validateOrReject(toppingValidator);
     } catch (error) {
       return next(new BadUserInputError({
-        errors: error
+        detail: error
       }));
     }
   }
@@ -29,7 +29,7 @@ export class ToppingController {
   }
 
   static async createTopping(req: Request, resp: Response, next: NextFunction): Promise<void | Response<ToppingView>> {
-    await this.validateTopping(req, next);
+    await ToppingController.validateTopping(req, next);
     return await errorCatcher(next, async () => {
       const newTopping = new ToppingView({
         name: req.body.name,
@@ -40,24 +40,18 @@ export class ToppingController {
   }
   
   static async updateTopping(req: Request, resp: Response, next: NextFunction): Promise<void | Response<ToppingView>> {
-    await this.validateTopping(req, next);
+    await ToppingController.validateTopping(req, next);
     return await errorCatcher(next, async () => {
-      const toppingToUpdate = new ToppingView({
-        id: req.body.id,
-        name: req.body.name
-      });
+      const toppingToUpdate = new ToppingView(req.body);
       const result = await ToppingService.updateExistingTopping(toppingToUpdate);
       return resp.send(result);
     });
   }
 
   static async deleteTopping(req: Request, resp: Response, next: NextFunction): Promise<Response<ToppingView>> {
-    await this.validateTopping(req, next);
+    await ToppingController.validateTopping(req, next);
     return errorCatcher(next, async () => {
-      const toppingToDelete = new ToppingView({
-        id: req.body.id,
-        name: req.body.name
-      });
+      const toppingToDelete = new ToppingView(req.body);
       const result = await ToppingService.deleteExistingTopping(toppingToDelete);
       return resp.send(result);
     });

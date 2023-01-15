@@ -12,4 +12,6 @@ export const AppDataSource = new DataSource({
     entities: Entities,
     migrations: [],
     subscribers: [],
+    synchronize: true,
+
 });

@@ -5,7 +5,7 @@ import { Topping } from "./Topping";
 @Entity()
 export class Pizza extends Common {
 
-  @ManyToMany(() => Topping)
+  @ManyToMany(() => Topping, (topping) => topping.pizzas)
   @JoinTable()
   toppings: Topping[]
 
@@ -17,9 +17,8 @@ export class Pizza extends Common {
   
   // Creating a unique composit of topping names before insert and after load to prevent duplicate pizzas
   @BeforeInsert()
-  @AfterLoad()
   combineToppingNames() {
-    this.toppingComposit = this.toppings.map((topping) => topping.name).join(",");
+    this.toppingComposit = this.toppings?.map((topping) => topping.name).join(",");
   }
 
 }

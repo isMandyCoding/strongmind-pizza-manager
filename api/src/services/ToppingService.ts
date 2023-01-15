@@ -1,3 +1,4 @@
+import { Not } from "typeorm";
 import { Topping } from "../database/entities/Topping";
 import { BadUserInputError, EntityNotFoundError } from "../errors/ClientSafeError";
 import { ToppingRepository } from "../repositories/ToppingRepository";
@@ -7,24 +8,43 @@ import { ToppingView } from "../views/ToppingView";
 export class ToppingService {
 
   static async rejectIfDuplicate(topping: ToppingView) {
-    const testTopping = await ToppingRepository.findOneBy({
-      name: topping.name
-    });
-    if (testTopping && testTopping.id !== topping.id) {
+    const testTopping = await ToppingRepository.findOne({
+      where: {
+        name: topping.name,
+        id: Not(Number(topping.id))
+      },
+    })
+    if (testTopping) {
       throw new BadUserInputError({
         detail: "Duplicate Topping name is not allowed"
       });
     }
   }
 
+  static async rejectDeleteIfHasPizzasOrNotFound(topping: ToppingView) {
+      const testTopping = await ToppingService.findOneOrReject(topping);
+      if (testTopping?.pizzas.length > 0) {
+        const pizzaList = testTopping.pizzas.map((pizza) => pizza.name).join(", ");
+        throw new BadUserInputError({
+          detail: `Unable to delete. Topping is being used on pizzas named: ${pizzaList}`
+        });
+      }
+      return testTopping;
+  };
+
   static async findOneOrReject(topping: ToppingView): Promise<Topping> {
-    const toppingToFind = await ToppingRepository.findOneBy({
-      id: topping.id
+    const foundTopping = await ToppingRepository.findOne({
+      relations: {
+        pizzas: true,
+      },
+      where: {
+        id: topping.id
+      }
     });
-    if (!toppingToFind) {
+    if (!foundTopping) {
       throw new EntityNotFoundError("Topping");
     }
-    return toppingToFind;
+    return foundTopping;
   }
 
   static async createNewTopping(topping: ToppingView): Promise<ToppingView> {
@@ -52,8 +72,8 @@ export class ToppingService {
   }
 
   static async deleteExistingTopping(topping: ToppingView): Promise<DeleteResultView> {
-    const toppingToDelete = await this.findOneOrReject(topping);
-    await ToppingRepository.delete(toppingToDelete);
+    const toppingToDelete = await this.rejectDeleteIfHasPizzasOrNotFound(topping);
+    await ToppingRepository.delete(toppingToDelete.id);
     return new DeleteResultView(toppingToDelete.id, "success");
   }
 

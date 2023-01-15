@@ -1,7 +1,7 @@
 import { Application } from "express"
 import { ToppingController } from "../controllers/ToppingController"
 
-export const ToppingRoutes = (app: Application) => {
+export const AddToppingRoutes = (app: Application) => {
   app.get("/toppings", ToppingController.getToppings);
   app.post("/toppings", ToppingController.createTopping);
   app.delete("/toppings", ToppingController.deleteTopping);

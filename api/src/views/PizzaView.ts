@@ -1,5 +1,3 @@
-import { Pizza } from "../database/entities/Pizza";
-import { Topping } from "../database/entities/Topping";
 import { CommonView, CommonViewParams } from "./CommonView";
 import { ToppingView, ToppingViewParams } from "./ToppingView";
 
@@ -12,6 +10,12 @@ export class PizzaView extends CommonView {
 
   constructor(pizza: PizzaViewParams) {
     super(pizza);
-    this.toppings = pizza.toppings.map((topping: ToppingViewParams) => new ToppingView(topping));
+    this.toppings = pizza.toppings?.map((topping: ToppingViewParams) => new ToppingView(topping));
   }
+  
+  get toppingComposit() {
+    return this.toppings?.map((topping: ToppingView) => topping.name).join(",")
+  }
+
+  
 }

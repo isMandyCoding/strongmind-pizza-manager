@@ -5,7 +5,8 @@ import createDBConnection from "./database/createDBConnection";
 import { ToppingController } from "./controllers/ToppingController";
 import { RouteNotFoundError } from "./errors/ClientSafeError";
 import { errorHandler } from "./middleware/errorHandler";
-import { ToppingRoutes } from "./routes/ToppingRoutes";
+import { AddToppingRoutes } from "./routes/AddToppingRoutes";
+import { AddPizzaRoutes } from "./routes/AddPizzaRoutes";
 
 const connectToDatabase = async () => {
   try {
@@ -30,7 +31,8 @@ const initializeExpress = (): Application => {
       status: "The API is working!",
     })
   });
-  ToppingRoutes(app);
+  AddToppingRoutes(app);
+  AddPizzaRoutes(app);
   app.use((req, resp, next) => next(new RouteNotFoundError(req.originalUrl)));
   app.use(errorHandler)
 

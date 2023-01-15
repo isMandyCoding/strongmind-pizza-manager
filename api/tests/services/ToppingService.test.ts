@@ -1,5 +1,5 @@
 import { expect, jest, describe, it, beforeEach } from "@jest/globals";
-import { DeepPartial, DeleteResult, UpdateResult } from "typeorm";
+import { DeleteResult } from "typeorm";
 import { Topping } from "../../src/database/entities/Topping";
 import { BadUserInputError, EntityNotFoundError } from "../../src/errors/ClientSafeError";
 import { ToppingRepository } from "../../src/repositories/ToppingRepository";
@@ -17,21 +17,25 @@ describe("ToppingService", () => {
     MOCK_TOPPINGS = [
       {
         id: 1,
-        name: "Pepperoni"
+        name: "Pepperoni",
+        pizzas: []
       },
       {
         id: 2,
-        name: "Ham"
+        name: "Ham",
+        pizzas: []
       },
       {
         id: 3,
-        name: "Mushrooms"
+        name: "Mushrooms",
+        pizzas: []
       },
     ];
 
     MOCK_TOPPING = {
       id: 4,
-      name: "Olives"
+      name: "Olives",
+      pizzas: []
     }
 
     mToppingRepoSave = jest.mocked(ToppingRepository.save);

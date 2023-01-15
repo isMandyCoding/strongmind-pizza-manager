@@ -4,7 +4,9 @@ import { Topping } from "../../src/database/entities/Topping";
 import { PizzaService } from "../../src/services/PizzaService";
 import { PizzaRepository } from "../../src/repositories/PizzaRepository";
 import { PizzaView } from "../../src/views/PizzaView";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { DeleteResult, Not, QueryRunner, SelectQueryBuilder, UpdateResult } from "typeorm";
+import { BadUserInputError, EntityNotFoundError } from "../../src/errors/ClientSafeError";
+import { DeleteResultView } from "../../src/views/DeleteResultView";
 
 jest.mock("../../src/repositories/PizzaRepository");
 
@@ -19,15 +21,19 @@ describe("PizzaService", () => {
     MOCK_TOPPINGS = [
       {
         id: 1,
-        name: "Pepperoni"
+        name: "Pepperoni",
+        pizzas: []
       },
       {
         id: 2,
-        name: "Ham"
+        name: "Ham",
+        pizzas: []
+        
       },
       {
         id: 3,
-        name: "Mushrooms"
+        name: "Mushrooms",
+        pizzas: []
       },
     ];
 
@@ -55,40 +61,76 @@ describe("PizzaService", () => {
       toppingComposit: MOCK_TOPPINGS.join(","),
       combineToppingNames: jest.fn()
     }
+
   });
 
-  it("createNewPizza should create new pizza", async () => {
-    // Arrange
-    const mPizzaRepoCreate = jest.mocked(PizzaRepository.create);
-    mPizzaRepoCreate.mockReturnValue(MOCK_PIZZA);
+  describe("createNewPizza", () => {
+    let mPizzaRepoFindOne: any;
 
-    const testPizza = new PizzaView(MOCK_PIZZA);
+    beforeEach(() => {
+      mPizzaRepoFindOne = jest.mocked(PizzaRepository.findOne);
+    });
+    
+    it("should create new pizza", async () => {
+      // Arrange
+      const mPizzaSave = jest.mocked(PizzaRepository.save);
+      mPizzaSave.mockResolvedValueOnce(MOCK_PIZZA);
+      mPizzaRepoFindOne.mockResolvedValueOnce(null);
+  
+      const saveCalledWithPizza = new Pizza();
+      saveCalledWithPizza.name = MOCK_PIZZA.name;
+      saveCalledWithPizza.toppings = MOCK_PIZZA.toppings.map((topping) => {
+        const newTop = new Topping();
+        newTop.id = topping.id;
+        newTop.name = topping.name;
+        return newTop;
+      })
+      const expectedResult = new PizzaView(MOCK_PIZZA);
+  
+      // Act
+      const result = await PizzaService.createNewPizza(new PizzaView(MOCK_PIZZA));
+  
+      // Assert
+      expect(result).toEqual(expectedResult);
+      expect(mPizzaSave).toBeCalledTimes(1);
+      expect(mPizzaSave).toBeCalledWith(saveCalledWithPizza);
+    });
+  
+    it("should throw BaderUserInputError when duplicate pizza is found", async () => {
+      // Arrange
+      mPizzaRepoFindOne.mockResolvedValueOnce(MOCK_PIZZA); // mock match pizza found
+      const mPizzaRepoSave = jest.mocked(PizzaRepository.save);
+      const testPizza = new PizzaView(MOCK_PIZZA);
+  
+      // Act
+      try {
+        await PizzaService.createNewPizza(testPizza);
+      } catch (error) {
+        // Assert
+        expect(error).toBeInstanceOf(BadUserInputError);
+        expect(error).toEqual(new BadUserInputError({
+          detail: "Duplicate Pizza name or toppings is not allowed",
+        }));
+      }
+  
+      expect(mPizzaRepoSave).toBeCalledTimes(0);
+      expect(mPizzaRepoFindOne).toBeCalledTimes(1);
+      expect(mPizzaRepoFindOne).toBeCalledWith({
+        where: [
+          {
+            id: Not(Number(testPizza.id)),
+            name: testPizza.name,
+          },
+          {
+            id: Not(Number(testPizza.id)),
+            toppingComposit: testPizza.toppingComposit,
+          }
+        ]
+      });
+    });
+  })
 
-    // Act
-    const result = await PizzaService.createNewPizza(testPizza);
-
-    // Assert
-    expect(result).toBe(testPizza);
-    expect(mPizzaRepoCreate).toBeCalledTimes(1);
-    expect(mPizzaRepoCreate).toBeCalledWith(MOCK_PIZZA);
-  });
-
-  it("createNewPizza should throw DuplicateToppings error when repository throws dup error", async () => {
-    // Arrange
-    const mPizzaRepoCreate = jest.mocked(PizzaRepository.create);
-    // mPizzaRepoCreate.mockReturnValue(new Error(""))
-    const testPizza = new PizzaView(MOCK_PIZZA);
-
-    // Act
-    const result = await PizzaService.updateExistingPizza(testPizza);
-
-    // Assert
-    expect(result).toBe(testPizza);
-    expect(mPizzaRepoCreate).toBeCalledTimes(1);
-    expect(mPizzaRepoCreate).toBeCalledWith(testPizza);
-  });
-
-  it("getAllPizzas should return all available Pizzas", async () => {
+  it("getAllPizzas should return all available Pizzas and their toppings", async () => {
     // Arrange
     const mToppingRepoFind = jest.mocked(PizzaRepository.find);
     mToppingRepoFind.mockResolvedValue(MOCK_PIZZAS);
@@ -113,30 +155,53 @@ describe("PizzaService", () => {
     const result = await PizzaService.updateExistingPizza(testPizza);
 
     // Assert
-    expect(result).toBe(testPizza);
+    expect(result).toEqual  (testPizza);
     expect(mPizzaRepoUpdate).toBeCalledTimes(1);
     expect(mPizzaRepoUpdate).toBeCalledWith(testPizza);
   });
 
-  it("deleteExistingPizza should return a status and id", async () => {
-    // Arrange
-    const deleteResult: DeleteResult = new DeleteResult();
-    deleteResult.affected = 1;
-    const mPizzaRepoDelete = jest.mocked(PizzaRepository.delete);
-    mPizzaRepoDelete.mockRejectedValue(deleteResult);
-    const testPizza = new PizzaView(MOCK_PIZZA);
-    const expectedResult = {
-      id: MOCK_PIZZA.id,
-      status: "success",
-    }
+  describe("deleteExistingPizza", () => {
 
-    // Act
-    const result = await PizzaService.deleteExistingPizza(testPizza);
+    let mPizzaRepoFindOne: any;
+    let mPizzaRepoDelete: any;
 
-    // Assert
-    expect(result).toBe(expectedResult);
-    expect(mPizzaRepoDelete).toBeCalledTimes(1);
-    
-  });
+    beforeEach(() => {
+      mPizzaRepoFindOne = jest.mocked(PizzaRepository.findOne);
+      mPizzaRepoDelete = jest.mocked(PizzaRepository.delete);
+    })
+
+    it("should return a status and id", async () => {
+      // Arrange
+      mPizzaRepoFindOne.mockResolvedValueOnce(MOCK_PIZZA);
+      const deleteResult: DeleteResult = new DeleteResult();
+      deleteResult.affected = 1;
+      mPizzaRepoDelete.mockResolvedValueOnce(deleteResult);
+      const testPizza = new PizzaView(MOCK_PIZZA);
+      const expectedResult = new DeleteResultView(MOCK_PIZZA.id, "success");
+  
+      // Act
+      const result = await PizzaService.deleteExistingPizza(testPizza);
+  
+      // Assert
+      expect(result).toEqual  (expectedResult);
+      expect(mPizzaRepoDelete).toBeCalledTimes(1);
+      expect(mPizzaRepoDelete).toBeCalledWith(MOCK_PIZZA.id);
+      
+    });
+
+    it("should throw a EntityNotFoundError if node matching Pizza is found", async () => {
+      mPizzaRepoFindOne.mockResolvedValueOnce(null);
+      const testPizza = new PizzaView(MOCK_PIZZA);
+
+      try {
+        await PizzaService.deleteExistingPizza(testPizza);
+      } catch (error) {
+        expect(error).toEqual(new EntityNotFoundError("Pizza"))
+      }
+      expect(mPizzaRepoFindOne).toBeCalledTimes(1);
+      expect(mPizzaRepoDelete).toBeCalledTimes(0);
+
+    })
+  })
 
 });
