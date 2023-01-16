@@ -1,5 +1,6 @@
 import { expect, jest, describe, it, beforeEach } from "@jest/globals";
 import { DeleteResult } from "typeorm";
+import { Pizza } from "../../src/database/entities/Pizza";
 import { Topping } from "../../src/database/entities/Topping";
 import { BadUserInputError, EntityNotFoundError } from "../../src/errors/ClientSafeError";
 import { ToppingRepository } from "../../src/repositories/ToppingRepository";
@@ -11,7 +12,6 @@ describe("ToppingService", () => {
 
   let MOCK_TOPPINGS: Topping[];
   let MOCK_TOPPING: Topping;
-  let mToppingRepoSave;
   beforeEach(() => {
 
     MOCK_TOPPINGS = [
@@ -38,7 +38,6 @@ describe("ToppingService", () => {
       pizzas: []
     }
 
-    mToppingRepoSave = jest.mocked(ToppingRepository.save);
 
   });
 
@@ -48,11 +47,11 @@ describe("ToppingService", () => {
     let mockTopping = new Topping();
     mockTopping.id = MOCK_TOPPING.id;
     mockTopping.name = MOCK_TOPPING.name;
-    mToppingRepoSave.mockResolvedValueOnce(mockTopping);
+    mToppingRepoSave.mockResolvedValue(mockTopping);
 
     // Ensure no duplicate
-    const mToppinfRepoFindOneBy = jest.mocked(ToppingRepository.findOneBy);
-    mToppinfRepoFindOneBy.mockResolvedValue(null);
+    const mToppinfRepoFindOne = jest.mocked(ToppingRepository.findOne);
+    mToppinfRepoFindOne.mockResolvedValue(null);
 
     const testTopping = new ToppingView({
       name: MOCK_TOPPING.name
@@ -79,8 +78,8 @@ describe("ToppingService", () => {
     mockTopping.name = MOCK_TOPPING.name;
 
     // Duplicate exists condition
-    const mToppingRepoFindOneBy = jest.mocked(ToppingRepository.findOneBy);
-    mToppingRepoFindOneBy.mockResolvedValue(mockTopping);
+    const mToppingRepoFindOne = jest.mocked(ToppingRepository.findOne);
+    mToppingRepoFindOne.mockResolvedValue(mockTopping);
 
     const testTopping = new ToppingView({
       name: MOCK_TOPPING.name,
@@ -90,35 +89,45 @@ describe("ToppingService", () => {
     // Act
     try {
       await ToppingService.createNewTopping(testTopping);
+      expect(false).toBeTruthy();
     } catch (error) {
       expect(error).toBeInstanceOf(BadUserInputError);
     }
 
     // Assert
     expect(mToppingSave).toBeCalledTimes(0);
+    expect(mToppingRepoFindOne).toBeCalledTimes(1);
   });
 
   it("getAllToppings should return all available Toppings", async () => {
     // Arrange
     const mToppingRepoFind = jest.mocked(ToppingRepository.find);
     mToppingRepoFind.mockResolvedValue(MOCK_TOPPINGS);
-
+    
     // Act
     const result = await ToppingService.getAllToppings();
-
+    
     // Assert
-    expect(result).toEqual(MOCK_TOPPINGS);
+    const expected = MOCK_TOPPINGS.map(topping => new ToppingView(topping));
+    expect(result).toEqual(expected);
     expect(mToppingRepoFind).toBeCalledTimes(1);
   });
 
   it("updateExistingTopping should update topping with updated name", async () => {
     // Arrange
-    // Mock topping exists state
-    const mToppingRepoFindOneBy = jest.mocked(ToppingRepository.findOneBy);
-    mToppingRepoFindOneBy.mockResolvedValue(MOCK_TOPPING);
+    const toppingToResolve = new Topping();
+    toppingToResolve.id = MOCK_TOPPING.id
+    toppingToResolve.name = MOCK_TOPPING.name;
+    toppingToResolve.pizzas = MOCK_TOPPING.pizzas;
+    const mToppingRepoFindOne = jest.mocked(ToppingRepository.findOne);
+
+    // First call for rejectIfDuplicate should return null to prevent error
+    mToppingRepoFindOne.mockResolvedValueOnce(null);
+    // Second Call for findOrReject's call of findOne should resolve to MOCK_TOPPING
+    mToppingRepoFindOne.mockResolvedValueOnce(toppingToResolve);
 
     const mToppingRepoSave = jest.mocked(ToppingRepository.save);
-    mToppingRepoSave.mockResolvedValueOnce(MOCK_TOPPING);
+    mToppingRepoSave.mockResolvedValue(toppingToResolve);
     const testTopping = new ToppingView(MOCK_TOPPING);
 
     // Act
@@ -127,56 +136,94 @@ describe("ToppingService", () => {
     // Assert
     expect(result).toEqual(testTopping);
     expect(mToppingRepoSave).toBeCalledTimes(1);
-    expect(mToppingRepoSave).toBeCalledWith(testTopping);
+    expect(mToppingRepoSave).toBeCalledWith(toppingToResolve);
+    expect(mToppingRepoFindOne).toBeCalledTimes(2);
   });
 
-  it("deleteExistingTopping should return a status and id", async () => {
-    // Arrange
+  describe("deleteExistingTopping", () => {
+    let mToppingRepoFindOne: any;
 
-    // Mock topping exists state
-    const mToppingRepoFindOneBy = jest.mocked(ToppingRepository.findOneBy);
-    mToppingRepoFindOneBy.mockResolvedValue(MOCK_TOPPING);
+    beforeEach(() => {
+      mToppingRepoFindOne = jest.mocked(ToppingRepository.findOne);
 
-    const deleteResult: DeleteResult = new DeleteResult();
-    deleteResult.affected = 1;
-    const mToppingRepoDelete = jest.mocked(ToppingRepository.delete);
-    mToppingRepoDelete.mockResolvedValue(deleteResult);
-    const testTopping = new ToppingView(MOCK_TOPPING);
-    const expectedResult = {
-      id: MOCK_TOPPING.id,
-      status: "success",
-    }
+    });
 
-    // Act
-    const result = await ToppingService.deleteExistingTopping(testTopping);
+    it("should return a status and id", async () => {
+      // Arrange
+  
+      // Mock topping exists state
+      const mToppingRepoFindOne = jest.mocked(ToppingRepository.findOne);
+      mToppingRepoFindOne.mockResolvedValue(MOCK_TOPPING);
+  
+      const deleteResult: DeleteResult = new DeleteResult();
+      deleteResult.affected = 1;
+      const mToppingRepoDelete = jest.mocked(ToppingRepository.delete);
+      mToppingRepoDelete.mockResolvedValue(deleteResult);
+      const testTopping = new ToppingView(MOCK_TOPPING);
+      const expectedResult = {
+        id: MOCK_TOPPING.id,
+        status: "success",
+      }
+  
+      // Act
+      const result = await ToppingService.deleteExistingTopping(testTopping);
+  
+      // Assert
+      expect(result).toEqual(expectedResult);
+      expect(mToppingRepoDelete).toBeCalledTimes(1);
+      expect(mToppingRepoFindOne).toBeCalledTimes(1);
+      
+    });
+  
+    it("for nonexistent id should throw EntityNotFoundError", async () => {
+      // Arrange
+  
+      // Mock topping exists state
+      mToppingRepoFindOne.mockResolvedValue(null);
+  
+      const deleteResult: DeleteResult = new DeleteResult();
+      deleteResult.affected = 1;
+      const mToppingRepoDelete = jest.mocked(ToppingRepository.delete);
+      const testTopping = new ToppingView(MOCK_TOPPING);
+  
+      // Act & Assert
+      try {
+        await ToppingService.deleteExistingTopping(testTopping);
+        expect(false).toBeTruthy();
+      } catch (error) {
+        expect(error).toBeInstanceOf(EntityNotFoundError)
+      }
+      expect(mToppingRepoFindOne).toBeCalledTimes(1);
+      expect(mToppingRepoDelete).toBeCalledTimes(0);
+      
+    });
 
-    // Assert
-    expect(result).toEqual(expectedResult);
-    expect(mToppingRepoDelete).toBeCalledTimes(1);
-    
-  });
+    it("should cause BadUserInputError if pizzas are using topping", async () => {
+      const mResolvedTopping = MOCK_TOPPING;
+      const mResolvedPizza = new Pizza();
+      mResolvedPizza.name = "Delicious Pizza";
+      const mResolvedPizza2 = new Pizza();
+      mResolvedPizza2.name = "Delicious Pizza 2";
+      mResolvedTopping.pizzas = [mResolvedPizza, mResolvedPizza2];
+      mToppingRepoFindOne.mockResolvedValue(mResolvedTopping);
+      const mToppingRepoDelete = jest.mocked(ToppingRepository.delete);
 
-  it("deleteExistingTopping for nonexistent id should throw EntityNotFoundError", async () => {
-    // Arrange
+      const testTopping = new ToppingView(MOCK_TOPPING);
 
-    // Mock topping exists state
-    const mToppingRepoFindOneBy = jest.mocked(ToppingRepository.findOneBy);
-    mToppingRepoFindOneBy.mockResolvedValue(null);
 
-    const deleteResult: DeleteResult = new DeleteResult();
-    deleteResult.affected = 1;
-    const mToppingRepoDelete = jest.mocked(ToppingRepository.delete);
-    mToppingRepoDelete.mockResolvedValue(deleteResult);
-    const testTopping = new ToppingView(MOCK_TOPPING);
+      try {
+        await ToppingService.deleteExistingTopping(testTopping);
+        expect(false).toBeTruthy();
+      } catch (error) {
+        expect(error).toEqual(new BadUserInputError({
+          detail: `Unable to delete. Topping is being used on pizzas named: Delicious Pizza, Delicious Pizza 2`
+        }));
+      }
 
-    // Act & Assert
-    try {
-      await ToppingService.deleteExistingTopping(testTopping)
-    } catch (error) {
-      expect(error).toBeInstanceOf(EntityNotFoundError)
-    }
-    expect(mToppingRepoDelete).toBeCalledTimes(0);
-    
-  });
+      expect(mToppingRepoFindOne).toBeCalledTimes(1);
+      expect(mToppingRepoDelete).toBeCalledTimes(0);
+    });
+
+  })
 
 })

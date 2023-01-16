@@ -29,11 +29,9 @@ export class PizzaService {
     }
   }
 
-  static async findOrReject(pizza: PizzaView): Promise<Pizza> {
-    const foundPizza = await PizzaRepository.findOne({
-      where: {
-        id: pizza.id
-      }
+  static async findByIdOrReject(pizza: PizzaView): Promise<Pizza> {
+    const foundPizza = await PizzaRepository.findOneBy({
+      id: pizza.id
     });
     if (!foundPizza) {
       throw new EntityNotFoundError("Pizza");
@@ -41,28 +39,42 @@ export class PizzaService {
     return foundPizza;
   }
 
-
-  static async createNewPizza(pizza: PizzaView): Promise<PizzaView> {
-    await PizzaService.rejectIfDuplicate(pizza);
-    const newPizza = new Pizza();
-    newPizza.name = pizza.name;
-    newPizza.toppings = pizza.toppings.map((topping: ToppingView) => {
+  static async saveOrUpdatePizza(pizza: PizzaView): Promise<PizzaView> {
+    const newOrUpdatedPizza = new Pizza();
+    if (pizza.id) {
+      newOrUpdatedPizza.id = pizza.id;
+    }
+    newOrUpdatedPizza.name = pizza.name;
+    newOrUpdatedPizza.toppings = pizza.toppings.map((topping: ToppingView) => {
       const toppingToAdd = new Topping();
       if (!topping.id) {
         throw new BadUserInputError({
-          detail: "Toppings must have an id."
+          detail: "Toppings must have an id"
         });
       }
       toppingToAdd.id = topping.id;
       toppingToAdd.name = topping.name;
       return toppingToAdd;
     });
-    const result = await PizzaRepository.save(newPizza);
+
+    // TypeORM save() creates new Entity if none exists or updates existing Entity
+    const result = await PizzaRepository.save(newOrUpdatedPizza);
     return new PizzaView({
       id: result.id,
       name: result.name,
       toppings: result.toppings,
     });
+  }
+
+  static async updateExistingPizza(pizza: PizzaView): Promise<PizzaView> {
+    await PizzaService.rejectIfDuplicate(pizza);
+    const pizzaToUpdate = await PizzaService.findByIdOrReject(pizza);
+    return await this.saveOrUpdatePizza(new PizzaView(pizzaToUpdate));
+  }
+
+  static async createNewPizza(pizza: PizzaView): Promise<PizzaView> {
+    await PizzaService.rejectIfDuplicate(pizza);
+    return await this.saveOrUpdatePizza(pizza);
   }
 
   static async getAllPizzas(): Promise<PizzaView[]> {
@@ -74,15 +86,9 @@ export class PizzaService {
     return pizzas.map(pizza => new PizzaView(pizza));
   }
 
-  static async updateExistingPizza(pizza: PizzaView): Promise<PizzaView> {
-    console.error("Not implemented");
-    throw Error("Not Implemented");
-    return pizza
-  }
-
   static async deleteExistingPizza(pizza: PizzaView): Promise<DeleteResultView> {
-    const pizzaToDelete = await PizzaService.findOrReject(pizza);
-    await PizzaRepository.delete(pizzaToDelete.id);
+    const pizzaToDelete = await PizzaService.findByIdOrReject(pizza);
+    const result = await PizzaRepository.delete(pizzaToDelete.id);
     return new DeleteResultView(pizza.id ?? 0, "success");
   }
 }

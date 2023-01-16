@@ -9,15 +9,15 @@ import { ToppingView } from "../views/ToppingView";
 
 export class ToppingController {
 
-  static async validateTopping(req: Request, next: NextFunction) {
+  static async validateTopping(req: Request) {
     try {
       const toppingValidator = new ToppingValidator();
       toppingValidator.name = req.body.name;
       return await validateOrReject(toppingValidator);
     } catch (error) {
-      return next(new BadUserInputError({
+      throw new BadUserInputError({
         detail: error
-      }));
+      });
     }
   }
   
@@ -29,8 +29,8 @@ export class ToppingController {
   }
 
   static async createTopping(req: Request, resp: Response, next: NextFunction): Promise<void | Response<ToppingView>> {
-    await ToppingController.validateTopping(req, next);
     return await errorCatcher(next, async () => {
+      await ToppingController.validateTopping(req);
       const newTopping = new ToppingView({
         name: req.body.name,
       })
@@ -40,8 +40,8 @@ export class ToppingController {
   }
   
   static async updateTopping(req: Request, resp: Response, next: NextFunction): Promise<void | Response<ToppingView>> {
-    await ToppingController.validateTopping(req, next);
     return await errorCatcher(next, async () => {
+      await ToppingController.validateTopping(req);
       const toppingToUpdate = new ToppingView(req.body);
       const result = await ToppingService.updateExistingTopping(toppingToUpdate);
       return resp.send(result);
@@ -49,8 +49,8 @@ export class ToppingController {
   }
 
   static async deleteTopping(req: Request, resp: Response, next: NextFunction): Promise<Response<ToppingView>> {
-    await ToppingController.validateTopping(req, next);
     return errorCatcher(next, async () => {
+      await ToppingController.validateTopping(req);
       const toppingToDelete = new ToppingView(req.body);
       const result = await ToppingService.deleteExistingTopping(toppingToDelete);
       return resp.send(result);

@@ -67,8 +67,8 @@ export class ToppingService {
     await this.rejectIfDuplicate(topping);
     const toppingToUpdate = await this.findOneOrReject(topping);
     toppingToUpdate.name = topping.name;
-    await ToppingRepository.save(toppingToUpdate);
-    return new ToppingView(toppingToUpdate);
+    const result = await ToppingRepository.save(toppingToUpdate);
+    return new ToppingView(result);
   }
 
   static async deleteExistingTopping(topping: ToppingView): Promise<DeleteResultView> {
