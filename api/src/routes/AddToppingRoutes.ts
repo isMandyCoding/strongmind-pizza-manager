@@ -5,5 +5,5 @@ export const AddToppingRoutes = (app: Application) => {
   app.get("/toppings", ToppingController.getToppings);
   app.post("/toppings", ToppingController.createTopping);
   app.delete("/toppings", ToppingController.deleteTopping);
-  app.put("/toppings", ToppingController.deleteTopping);
+  app.put("/toppings", ToppingController.updateTopping);
 }

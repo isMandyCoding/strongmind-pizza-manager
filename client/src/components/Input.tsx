@@ -1,69 +1,132 @@
 /** @jsxImportSource theme-ui */
-import React, { useState } from "react";
+import {
+  InputHTMLAttributes,
+  LabelHTMLAttributes,
+  useRef,
+  useState,
+} from "react";
+import { ThemeUIStyleObject } from "theme-ui";
+import Button, { ButtonProps } from "./Button";
+import InputErrorHelperText from "./InputErrorHelperText";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  labelProps?: React.LabelHTMLAttributes<HTMLLabelElement>;
-  value: any;
-  label: string;
+export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
+  sx?: ThemeUIStyleObject;
 }
 
-const Input = ({ labelProps, label, ...props }: InputProps) => {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  labelProps?: LabelProps;
+  buttonProps?: ButtonProps;
+  value: any;
+  label: string;
+  errorMessage?: string;
+  sx?: ThemeUIStyleObject;
+  wrapperSx?: ThemeUIStyleObject;
+}
+
+const Input = ({
+  labelProps,
+  buttonProps,
+  label,
+  errorMessage,
+  wrapperSx,
+  ...props
+}: InputProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [touched, setTouched] = useState(false);
   const handleBlur = () => {
     if (!touched) {
       setTouched(true);
     }
   };
+
+  const handleLabelClick = () => {
+    inputRef?.current?.focus();
+  };
+
   return (
     <div
       sx={{
-        display: "flex",
-        flexDirection: "column",
         position: "relative",
         transition: "all 150ms",
-        my: 2,
+        my: 3,
         "&:focus-within label": {
           fontSize: 1,
           top: "-1.9rem",
           left: 0,
-          display: "none",
         },
+        ...wrapperSx,
       }}
     >
       <label
+        onClick={handleLabelClick}
         htmlFor={props.id}
         sx={{
           position: "absolute",
-          top: props.value ? "-1.9rem" : 0,
+          top: props.value ? "-1.9rem" : "0.75rem",
           fontSize: props.value ? 1 : "body",
           transition: "all 150ms",
           py: 2,
           px: 3,
+          "&:hover": {
+            cursor: "text",
+          },
         }}
         {...labelProps}
       >
         {label}
       </label>
-      <input
-        {...props}
+      <div
         sx={{
-          border: (theme) => `1px solid ${theme.colors?.background}`,
-          px: 2,
-          py: 3,
-          bg: "transparent",
-          borderRadius: 3,
-          transition: "150ms",
-          color: "black",
-          "&:focus": {
-            outline: "none",
-          },
-          "&:invalid": {
-            borderColor: touched ? "red" : "inherit",
-          },
+          variant: "flex.row",
+          alignItems: "stretch",
         }}
-        onBlur={handleBlur}
-      />
+      >
+        <input
+          ref={inputRef}
+          sx={{
+            border: (theme) => `1px solid ${theme.colors?.background}`,
+            px: 2,
+            py: 3,
+            bg: "transparent",
+            borderRadius: "0 2px 2px 0",
+            transition: "150ms",
+            color: "black",
+            flexGrow: buttonProps ? 5 : 1,
+            "&:focus": {
+              outline: (theme) => `1px solid ${theme.colors?.background}`,
+            },
+            "&:invalid": {
+              borderColor: touched ? "red" : "inherit",
+            },
+            ...props.sx,
+          }}
+          onBlur={handleBlur}
+          {...props}
+        />
+        {buttonProps ? (
+          <Button
+            sx={{
+              px: 4,
+              color: "white",
+              bg: buttonProps.color ?? "transparent",
+              border: "none",
+              borderRadius: "0 2px 2px 0",
+              flexGrow: 1,
+              "&:hover": {
+                cursor: "pointer",
+              },
+              "&:focus, :focus-visible": {
+                border: "solid 1px black",
+                outline: "none",
+              },
+            }}
+            {...buttonProps}
+          >
+            {buttonProps.children}
+          </Button>
+        ) : null}
+      </div>
+      <InputErrorHelperText>{errorMessage}</InputErrorHelperText>
     </div>
   );
 };

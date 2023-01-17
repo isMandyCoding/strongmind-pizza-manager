@@ -1,4 +1,12 @@
-import { Theme } from "theme-ui";
+import { ColorModesScale, Theme, ThemeUIStyleObject } from "theme-ui";
+
+export interface LabelVarients {
+  visuallyHidden: ThemeUIStyleObject;
+}
+
+export interface InputVariants {
+  minimal: ThemeUIStyleObject
+}
 
 export interface DefaultFlex {
   display: "flex";
@@ -22,6 +30,9 @@ export interface FlexVariant {
 
 export interface PizzaTheme extends Theme {
   flex: FlexVariant;
+  colors: ColorModesScale;
+  inputs?: InputVariants;
+  labels?: LabelVarients;
 }
 
 export const theme: PizzaTheme = {
@@ -34,8 +45,10 @@ export const theme: PizzaTheme = {
     text: "#ffffff",
     background: "#7c1526",
     primary: "#7c1526",
+    secondary: "#008764",
     white: "#ffffff",
     black: "#000000",
+    danger: "red"
   },
   fontWeights: {
     body: 400,
@@ -69,8 +82,15 @@ export const theme: PizzaTheme = {
     }
   },
   buttons: {
-    primary: {
-
+    outlined: {
+      bg: "transparent",
+      border: "1px solid #7c1526",
+      borderRadius: "2px",
+      py: 1,
+      px: 2,
+      "&:hover": {
+        cursor: "pointer"
+      }
     },
     tabButton: {
       color: "text",
@@ -114,7 +134,14 @@ export const theme: PizzaTheme = {
   styles: {
     hr: {
       mx: 4,
-      borderBottom: theme => `1px solid ${theme.colors?.background}`
+      border: "none",
+      borderBottom: `1px solid #000`,
+      opacity: 0.15,
+      width: "100%"
+    },
+    spinner: {
+      color: "white",
+      m: 2,
     }
   },
   flex: {
@@ -132,5 +159,32 @@ export const theme: PizzaTheme = {
       alignItems: "center",
     },
   },
+  inputs: {
+    minimal: {
+      borderRadius: 0,
+      py: 1,
+      my: 0,
+      border: "none",
+      borderBottom: (theme) => `1px solid ${theme.colors?.background}`,
+      "&:focus, :focus-visible": {
+        border: "none",
+        outline: "none",
+        borderBottom: (theme) => `2px solid ${theme.colors?.background}`,
+      },
+    }
+  },
+  labels: {
+    visuallyHidden: {
+      /* Accessible hidden label snippet https://www.w3.org/WAI/tutorials/forms/labels/#note-on-hiding-elements */
+      border: 0,
+      clip: "rect(0 0 0 0)",
+      height: "1px",
+      margin: "-1px",
+      overflow: "hidden",
+      padding: 0,
+      position: "absolute",
+      width: "1px",
+    }
+  }
 };
 
