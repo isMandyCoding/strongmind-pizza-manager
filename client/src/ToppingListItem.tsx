@@ -2,7 +2,9 @@
 import axios from "axios";
 import {
   ChangeEventHandler,
+  FocusEventHandler,
   KeyboardEventHandler,
+  SyntheticEvent,
   useContext,
   useState,
 } from "react";
@@ -29,18 +31,30 @@ const ToppingListItem = ({ name, id }: ToppingListItemProps) => {
     setToppingName(e.currentTarget.value);
   };
 
-  const handleEditClick = () => {
+  const handleEditClick = (e: SyntheticEvent) => {
+    e.preventDefault();
     setIsEditMode(true);
   };
 
   const { setToppings, toppings } = useContext(ToppingsContext);
 
-  const handleBlur = () => {
+  const handleBlur: FocusEventHandler<HTMLInputElement> = (e) => {
+    e.preventDefault();
     setToppingName(name);
     setIsEditMode(false);
   };
 
-  const handleSaveClick = async () => {
+  // To prevent blur event on input
+  const handleSaveMouseDown = (e: SyntheticEvent) => e.preventDefault();
+
+  const handleKeyEvent: KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === "Enter") {
+      handleSaveClick(e);
+    }
+  };
+
+  const handleSaveClick = async (e: SyntheticEvent) => {
+    e.preventDefault();
     setUpdateToppingError("");
     if (toppingName === name) {
       setIsEditMode(false);
@@ -51,7 +65,6 @@ const ToppingListItem = ({ name, id }: ToppingListItemProps) => {
         id: id,
         name: toppingName.trim(),
       });
-      setIsEditMode(false);
       if (setToppings) {
         const newToppings = toppings.map((topping) => {
           if (topping.id === id) {
@@ -59,17 +72,12 @@ const ToppingListItem = ({ name, id }: ToppingListItemProps) => {
           }
           return topping;
         });
+        setIsEditMode(false);
         setToppings(newToppings);
       }
     } catch (error) {
       const errorMessage = formatAPIErrors(error, "updating the topping");
       setUpdateToppingError(errorMessage);
-    }
-  };
-
-  const handleKeyEvent: KeyboardEventHandler<HTMLInputElement> = (e) => {
-    if (e.key === "Enter") {
-      handleSaveClick();
     }
   };
 
@@ -114,8 +122,8 @@ const ToppingListItem = ({ name, id }: ToppingListItemProps) => {
           label="Topping"
           onChange={handleToppingNameChange}
           errorMessage={updateToppingError}
-          onKeyDown={handleKeyEvent}
           onBlur={handleBlur}
+          onKeyUp={handleKeyEvent}
           wrapperSx={{
             my: 0,
           }}
@@ -152,9 +160,17 @@ const ToppingListItem = ({ name, id }: ToppingListItemProps) => {
         }}
       >
         {isEditMode ? (
-          <Button onClick={handleSaveClick}>Save</Button>
+          <Button
+            id={`saveTopping${id}`}
+            onClick={handleSaveClick}
+            onMouseDown={handleSaveMouseDown}
+          >
+            Save
+          </Button>
         ) : (
-          <Button onClick={handleEditClick}>Edit</Button>
+          <Button id={`editTopping${id}`} onClick={handleEditClick}>
+            Edit
+          </Button>
         )}
         <Button onClick={handleDeleteClick} color="danger">
           Delete
