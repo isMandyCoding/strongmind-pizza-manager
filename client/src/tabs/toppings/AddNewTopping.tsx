@@ -8,13 +8,13 @@ import {
   useState,
 } from "react";
 import { Spinner } from "theme-ui";
-import Input from "./components/Input";
-import { ToppingsContext } from "./context/ToppingsProvider";
-import { formatAPIErrors } from "./utils/formatAPIErrors";
+import Input from "../../components/Input";
+import { ToppingsContext } from "../../context/ToppingsProvider";
+import { formatAPIErrors } from "../../utils/formatAPIErrors";
 
 export interface AddNewToppingProps {}
 
-const AddNewTopping = ({}: AddNewToppingProps) => {
+const AddNewTopping = (props: AddNewToppingProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [newTopping, setNewTopping] = useState("");
@@ -67,6 +67,7 @@ const AddNewTopping = ({}: AddNewToppingProps) => {
         label={"Enter Topping"}
         onChange={handleNewToppingChange}
         onKeyUp={handleKeyEvent}
+        errorMessage={errorMessage}
         buttonProps={{
           color: "secondary",
           children: isLoading ? (
@@ -77,7 +78,6 @@ const AddNewTopping = ({}: AddNewToppingProps) => {
           disabled: isLoading || !!errorMessage,
           onClick: handleAddClick,
         }}
-        errorMessage={errorMessage}
       />
     </div>
   );

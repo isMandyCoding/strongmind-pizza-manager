@@ -59,7 +59,11 @@ export class ToppingService {
   }
 
   static async getAllToppings(): Promise<ToppingView[]> {
-    const toppings: Topping[] = await ToppingRepository.find();
+    const toppings: Topping[] = await ToppingRepository.find({
+      order: {
+        updatedAt: 'DESC'
+      }
+    });
     return toppings.map((topping) => new ToppingView(topping));
   }
 

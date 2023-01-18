@@ -13,7 +13,7 @@ const Button = (props: ButtonProps) => {
   const { children, color, variant } = props;
   const { theme } = useThemeUI();
 
-  const borderProp = color
+  let borderProp = color
     ? `1px solid ${theme.colors ? theme.colors[color] : "inherit"}`
     : `1px solid ${theme.colors?.primary}`;
   return (

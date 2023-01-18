@@ -1,13 +1,14 @@
 import axios from "axios";
-import React, {
+import {
   createContext,
   Dispatch,
   ReactNode,
   SetStateAction,
+  useCallback,
   useState,
 } from "react";
 
-type Topping = {
+export type Topping = {
   id: number;
   name: string;
 };
@@ -32,6 +33,7 @@ export interface ToppingsProviderProps {
 }
 
 const ToppingsProvider = ({ children }: ToppingsProviderProps) => {
+  const [toppings, setToppings] = useState<Topping[]>([]);
   const [isToppingsLoading, setIsToppingsLoading] = useState(true);
   const [isToppingsError, setIsToppingsError] = useState(false);
 
@@ -43,20 +45,20 @@ const ToppingsProvider = ({ children }: ToppingsProviderProps) => {
       );
       setToppings(result.data);
       setIsToppingsLoading(false);
-      if (result instanceof Array) {
-        return result;
+      if (result.data instanceof Array) {
+        return result.data;
       }
+      throw new Error();
     } catch (error) {
       setIsToppingsLoading(false);
       setIsToppingsError(true);
+      return [];
     }
-    return [];
   };
 
-  const [toppings, setToppings] = useState<Topping[]>([]);
   const value = {
     toppings,
-    getToppings,
+    getToppings: useCallback(getToppings, []),
     isToppingsLoading,
     isToppingsError,
     setToppings,

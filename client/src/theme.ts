@@ -90,6 +90,11 @@ export const theme: PizzaTheme = {
       px: 2,
       "&:hover": {
         cursor: "pointer"
+      },
+      "&:disabled": {
+        cursor: "not-allowed",
+        border: "1px solid lightgray",
+        color: "lightgray"
       }
     },
     tabButton: {

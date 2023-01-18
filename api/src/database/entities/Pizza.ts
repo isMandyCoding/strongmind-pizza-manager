@@ -1,11 +1,13 @@
-import { Entity,  Column, ManyToMany, JoinTable, BeforeInsert, AfterLoad } from "typeorm";
+import { Entity,  Column, ManyToMany, JoinTable, BeforeInsert, AfterLoad, BeforeUpdate } from "typeorm";
 import { Common } from "./Common";
 import { Topping } from "./Topping";
 
 @Entity()
 export class Pizza extends Common {
 
-  @ManyToMany(() => Topping, (topping) => topping.pizzas)
+  @ManyToMany(() => Topping, (topping) => topping.pizzas, {
+    eager: true
+  })
   @JoinTable()
   toppings: Topping[]
 
@@ -14,11 +16,6 @@ export class Pizza extends Common {
     type: "varchar"
   })
   toppingComposit: string
-  
-  // Creating a unique composit of topping names before insert and after load to prevent duplicate pizzas
-  @BeforeInsert()
-  combineToppingNames() {
-    this.toppingComposit = this.toppings?.map((topping) => topping.name).join(",");
-  }
+
 
 }

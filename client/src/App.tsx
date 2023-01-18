@@ -1,14 +1,10 @@
 /** @jsxImportSource theme-ui */
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import Card from "./components/Card";
-import CardHeader from "./components/CardHeader";
+import React, { useState } from "react";
 import { entitiesToManage } from "./utils/enums";
 import TabButton from "./components/TabButton";
-import AddNewTopping from "./AddNewTopping";
-import CardList from "./components/CardList";
-import ToppingListItem from "./ToppingListItem";
-import ToppingsCard from "./ToppingsCard";
+import ToppingsCard from "./tabs/toppings/ToppingsCard";
+import PizzasCard from "./tabs/pizzas/PizzasCard";
+import ToppingsProvider from "./context/ToppingsProvider";
 
 function App() {
   const [entityToManage, setEntityToManage] = useState(
@@ -52,17 +48,13 @@ function App() {
             Pizzas
           </TabButton>
         </div>
-        {entityToManage === entitiesToManage.TOPPINGS ? (
-          <ToppingsCard />
-        ) : (
-          <Card
-            sx={{
-              maxWidth: "45em",
-            }}
-          >
-            <CardHeader text="Pizzas" />
-          </Card>
-        )}
+        <ToppingsProvider>
+          {entityToManage === entitiesToManage.TOPPINGS ? (
+            <ToppingsCard />
+          ) : (
+            <PizzasCard />
+          )}
+        </ToppingsProvider>
       </main>
     </div>
   );

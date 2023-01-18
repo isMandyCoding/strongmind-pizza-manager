@@ -14,8 +14,13 @@ export class PizzaView extends CommonView {
   }
   
   get toppingComposit() {
-    return this.toppings?.map((topping: ToppingView) => topping.name).join(",")
+    // console.log(this.toppings?.length);
+    return this.toppings?.length > 0 ?
+      this.toppings
+        .map((topping: ToppingView) => topping.name)
+        .sort()
+        .join(",") :
+      this.name;
   }
-
   
 }

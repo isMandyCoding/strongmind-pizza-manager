@@ -1,4 +1,4 @@
-import { Not } from "typeorm";
+import { IsNull, Not } from "typeorm";
 import { Pizza } from "../database/entities/Pizza";
 import { Topping } from "../database/entities/Topping";
 import { BadUserInputError, EntityNotFoundError } from "../errors/ClientSafeError";
@@ -18,9 +18,12 @@ export class PizzaService {
         },
         {
           id: Not(Number(pizza.id)),
+          toppings: {
+            id: Not(IsNull())
+          },
           toppingComposit: pizza.toppingComposit,
-        }
-      ]
+        },
+      ],
     })
     if (duplicatePizza) {
       throw new BadUserInputError({
@@ -54,8 +57,10 @@ export class PizzaService {
       }
       toppingToAdd.id = topping.id;
       toppingToAdd.name = topping.name;
+      toppingToAdd
       return toppingToAdd;
     });
+    newOrUpdatedPizza.toppingComposit = pizza.toppingComposit;
 
     // TypeORM save() creates new Entity if none exists or updates existing Entity
     const result = await PizzaRepository.save(newOrUpdatedPizza);
@@ -68,8 +73,8 @@ export class PizzaService {
 
   static async updateExistingPizza(pizza: PizzaView): Promise<PizzaView> {
     await PizzaService.rejectIfDuplicate(pizza);
-    const pizzaToUpdate = await PizzaService.findByIdOrReject(pizza);
-    return await this.saveOrUpdatePizza(new PizzaView(pizzaToUpdate));
+    await PizzaService.findByIdOrReject(pizza);
+    return await this.saveOrUpdatePizza(pizza);
   }
 
   static async createNewPizza(pizza: PizzaView): Promise<PizzaView> {
@@ -79,6 +84,9 @@ export class PizzaService {
 
   static async getAllPizzas(): Promise<PizzaView[]> {
     const pizzas = await PizzaRepository.find({
+      order: {
+        updatedAt: 'DESC'
+      },
       relations: {
         toppings: true,
       }
