@@ -11,6 +11,7 @@ const PizzasCard = () => {
     <Card
       sx={{
         maxWidth: "45em",
+        overflow: "hidden",
       }}
     >
       <PizzasProvider>

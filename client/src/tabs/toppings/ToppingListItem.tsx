@@ -112,7 +112,6 @@ const ToppingListItem = ({ name, id }: ToppingListItemProps) => {
         >
           <Input
             value={toppingName}
-            autoFocus
             label="Topping"
             onChange={handleToppingNameChange}
             errorMessage={updateToppingError}

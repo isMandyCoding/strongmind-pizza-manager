@@ -33,7 +33,6 @@ const UpdatePizzaToppings = (props: UpdatePizzaToppingsProps) => {
   const handleChange = (
     newValue: MultiValue<{ value: number; label: string }>
   ) => {
-    console.log(pizzaToppings);
     const newToppings = newValue.map((option): Topping => {
       return {
         id: option.value,

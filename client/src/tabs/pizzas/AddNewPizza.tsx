@@ -41,7 +41,6 @@ const AddNewPizza = (props: AddNewPizzaProps) => {
       resultPizza.toppings = resultPizza.toppings?.length
         ? resultPizza.toppings
         : [];
-      console.log({ resultPizza });
       const newPizzas = [resultPizza, ...pizzas];
       setIsLoading(false);
       setNewPizza("");

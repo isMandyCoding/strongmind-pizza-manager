@@ -47,7 +47,6 @@ const PizzaListItem = ({ name, id, toppings }: PizzaListItemProps) => {
     setUpdatePizzaError("");
     setDeleteError("");
     try {
-      console.log("handleSaveClicked");
       await axios.put(`${process.env.REACT_APP_API_BASE_URL}/pizzas`, {
         id: id,
         name: pizzaName.trim(),

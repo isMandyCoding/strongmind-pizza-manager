@@ -14,7 +14,6 @@ export class PizzaView extends CommonView {
   }
   
   get toppingComposit() {
-    // console.log(this.toppings?.length);
     return this.toppings?.length > 0 ?
       this.toppings
         .map((topping: ToppingView) => topping.name)

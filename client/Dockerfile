@@ -1,11 +1,16 @@
-FROM node:18
-
+# build environment
+FROM node:18-alpine as build
 WORKDIR /usr/src/client
-
-COPY ["package.json", "package-lock.json", "./"]
-
+COPY package.json ./
+COPY package-lock.json ./
 RUN npm install
+COPY . ./
+RUN npm run build
 
-COPY . .
-
-CMD ["npm", "start"]
+# production environment
+FROM build as prod
+WORKDIR /usr/src/client
+COPY --from=build /usr/src/client/build /usr/src/client/server.js ./
+COPY --from=build /usr/src/client/package*.json ./
+RUN npm ci --production
+CMD ["npm", "run", "start:production"]
