@@ -1,10 +1,19 @@
 # StrongMind Full Stack Developer Assessment
 
-This app serves as a technical interview for a Full Stack Developer. It meets the requirements described [here](https://github.com/StrongMind/culture/blob/main/recruit/full-stack-developer.md).
+This app serves as a technical interview for a Full Stack Developer. It meets the requirements described [here](https://github.com/StrongMind/culture/blob/main/recruit/full-stack-developer.md). 
 
 # Visit the site
 
 You can visit the site at https://pizzamngrclient.fly.dev/.
+![App Sreenshot](https://user-images.githubusercontent.com/35410313/213439003-902e316b-69e0-4ffc-9417-231491507a21.png)
+
+## Features
+
+- Written in modern React written in Typescript, only functional components with hooks
+- Scalable design implementation with Theme UI with custom reusable compoments such as inputs, buttons, cards, etc.
+- Simple local React state management only using context when state is needed more globally rather than Redux
+- API written in TypeScript and using TypeORM
+- API Request validation using Class Validator
 
 # Steps to Run Locally
 
