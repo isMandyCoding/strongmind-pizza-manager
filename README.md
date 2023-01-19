@@ -10,7 +10,6 @@ You can visit the site at https://pizzamngrclient.fly.dev/.
 ## Features
 
 - Written in modern React written in Typescript, only functional components with hooks
-- A variety of custom light-weight UI components such as inputs, buttons, cards, etc.
 - Scalable design implementation with Theme UI with custom reusable compoments such as inputs, buttons, cards, etc.
 - Simple local React state management only using context when state is needed more globally rather than Redux
 - API written in TypeScript and using TypeORM
