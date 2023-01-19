@@ -18,7 +18,7 @@ docker compose -f docker-compose.dev.yaml up -d --build
 
 The above command starts up an environment that hot reloads after code changes. On subsequent runs, you can omit `--build`.
 
-2. You should then me able to navigate to http://localhost:3000/ in your preferred browser and use the app.
+2. You should then be able to navigate to http://localhost:3000/ in your preferred browser and use the app.
 
 # Steps to Test
 
@@ -48,3 +48,7 @@ Tests for the API were written using Jest. The Controller and Service layers are
 - [Class Validator](https://github.com/typestack/class-validator)
 
 - [Postgres DB](https://www.postgresql.org/)
+
+## DevOps Related Technology Used
+
+- [Docker Compose](https://docs.docker.com/compose/)
