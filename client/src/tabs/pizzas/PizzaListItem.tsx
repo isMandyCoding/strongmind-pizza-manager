@@ -128,12 +128,10 @@ const PizzaListItem = ({ name, id, toppings }: PizzaListItemProps) => {
               onChange={handlePizzaNameChange}
               errorMessage={updatePizzaError}
               onKeyUp={handleKeyEvent}
-              wrapperSx={{
-                my: 0,
-              }}
               sx={{
                 variant: "inputs.minimal",
                 maxWidth: "120px",
+                my: 0,
               }}
               labelProps={{
                 sx: {

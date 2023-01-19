@@ -1,20 +1,18 @@
 /** @jsxImportSource theme-ui */
 import { LiHTMLAttributes } from "react";
-import { ThemeUIStyleObject } from "theme-ui";
+import { SxProp, ThemeUIStyleObject } from "theme-ui";
 
-export interface CardListItemProps extends LiHTMLAttributes<HTMLLIElement> {
-  sx?: ThemeUIStyleObject;
-}
+export type CardListItemProps = LiHTMLAttributes<HTMLLIElement> & SxProp & {};
 
 const CardListItem = (props: CardListItemProps) => {
-  const { children, sx } = props;
+  const { children, className } = props;
   return (
     <li
+      className={className}
       sx={{
         variant: "flex.row",
         flexDirection: ["column", null, "row"],
         width: "100%",
-        ...sx,
       }}
       {...props}
     >

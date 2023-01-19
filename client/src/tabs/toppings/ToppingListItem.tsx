@@ -116,12 +116,10 @@ const ToppingListItem = ({ name, id }: ToppingListItemProps) => {
             onChange={handleToppingNameChange}
             errorMessage={updateToppingError}
             onKeyUp={handleKeyEvent}
-            wrapperSx={{
-              my: 0,
-            }}
             sx={{
               variant: "inputs.minimal",
               maxWidth: "120px",
+              my: 0,
             }}
             labelProps={{
               sx: {

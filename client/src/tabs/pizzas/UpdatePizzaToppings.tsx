@@ -2,19 +2,18 @@
 
 import { HTMLAttributes, useContext } from "react";
 import Select, { MultiValue } from "react-select";
-import { ThemeUIStyleObject } from "theme-ui";
+import { SxProp } from "theme-ui";
 import { Topping, ToppingsContext } from "../../context/ToppingsProvider";
 
-export interface UpdatePizzaToppingsProps
-  extends HTMLAttributes<HTMLDivElement> {
-  pizzaToppings: Topping[];
-  pizzaId: number;
-  sx?: ThemeUIStyleObject;
-  onSelectedToppingsChange: (toppings: Topping[]) => void;
-}
+export type UpdatePizzaToppingsProps = HTMLAttributes<HTMLDivElement> &
+  SxProp & {
+    pizzaToppings: Topping[];
+    pizzaId: number;
+    onSelectedToppingsChange: (toppings: Topping[]) => void;
+  };
 
 const UpdatePizzaToppings = (props: UpdatePizzaToppingsProps) => {
-  const { pizzaId, pizzaToppings, sx, onSelectedToppingsChange } = props;
+  const { pizzaId, pizzaToppings, onSelectedToppingsChange, className } = props;
   const { toppings, isToppingsLoading, isToppingsError } =
     useContext(ToppingsContext);
   const toppingOptions = toppings.map((topping) => {
@@ -43,10 +42,10 @@ const UpdatePizzaToppings = (props: UpdatePizzaToppingsProps) => {
   };
   return (
     <div
+      className={className}
       id={"test"}
       sx={{
         width: "100%",
-        ...sx,
       }}
     >
       <Select

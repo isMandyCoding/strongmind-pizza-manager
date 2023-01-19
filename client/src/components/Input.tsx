@@ -5,30 +5,27 @@ import {
   useRef,
   useState,
 } from "react";
-import { ThemeUIStyleObject } from "theme-ui";
+import { SxProp } from "theme-ui";
 import Button, { ButtonProps } from "./Button";
 import InputErrorHelperText from "./InputErrorHelperText";
 
-export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
-  sx?: ThemeUIStyleObject;
-}
+export type LabelProps = LabelHTMLAttributes<HTMLLabelElement> & SxProp & {};
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  labelProps?: LabelProps;
-  buttonProps?: ButtonProps;
-  value: any;
-  label: string;
-  errorMessage?: string;
-  sx?: ThemeUIStyleObject;
-  wrapperSx?: ThemeUIStyleObject;
-}
+export type InputProps = InputHTMLAttributes<HTMLInputElement> &
+  SxProp & {
+    labelProps?: LabelProps;
+    buttonProps?: ButtonProps;
+    value: any;
+    label: string;
+    errorMessage?: string;
+  };
 
 const Input = ({
   labelProps,
   buttonProps,
   label,
   errorMessage,
-  wrapperSx,
+  className,
   ...props
 }: InputProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,10 +51,10 @@ const Input = ({
           top: "-1.9rem",
           left: 0,
         },
-        ...wrapperSx,
       }}
     >
       <label
+        className={labelProps?.className}
         onClick={handleLabelClick}
         htmlFor={props.id}
         sx={{
@@ -82,6 +79,7 @@ const Input = ({
         }}
       >
         <input
+          className={className}
           ref={inputRef}
           sx={{
             border: (theme) => `1px solid ${theme.colors?.background}`,
@@ -98,13 +96,13 @@ const Input = ({
             "&:invalid": {
               borderColor: touched ? "red" : "inherit",
             },
-            ...props.sx,
           }}
           onBlur={handleBlur}
           {...props}
         />
         {buttonProps ? (
           <Button
+            className={buttonProps.className}
             sx={{
               px: 4,
               color: "white",
