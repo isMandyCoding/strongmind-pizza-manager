@@ -1,11 +1,11 @@
-FROM node:16
+FROM node:18-alpine
 
 WORKDIR /usr/src/api
 
 COPY ["package.json", "package-lock.json", "./"]
 
-RUN npm install
+RUN npm i
 
 COPY . .
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:dev"]

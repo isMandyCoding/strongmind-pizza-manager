@@ -2,7 +2,6 @@ import "reflect-metadata";
 import express, { Application } from "express";
 import cors from "cors";
 import createDBConnection from "./database/createDBConnection";
-import { ToppingController } from "./controllers/ToppingController";
 import { RouteNotFoundError } from "./errors/ClientSafeError";
 import { errorHandler } from "./middleware/errorHandler";
 import { AddToppingRoutes } from "./routes/AddToppingRoutes";

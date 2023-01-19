@@ -3,7 +3,7 @@ import Entities from "./entities";
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
-    host: 'db', // Docker network host (service name)
+    host: process.env.DB_HOST, // Docker network host (service name)
     port: 5432, // Docker container port
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,

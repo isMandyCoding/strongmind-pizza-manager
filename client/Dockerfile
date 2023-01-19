@@ -3,7 +3,7 @@ FROM node:18-alpine as build
 WORKDIR /usr/src/client
 COPY package.json ./
 COPY package-lock.json ./
-RUN npm install
+RUN npm i
 COPY . ./
 RUN npm run build
 

@@ -12,7 +12,7 @@ This app serves as a technical interview for a Full Stack Developer. It meets th
 docker compose -f docker-compose.dev.yaml up -d --build
 ```
 
-Optionally, if you'd like run a production-like environment locally, you can run the same command without the `-f` option like so:
+The above command starts up an environment that hot reloads after code changes. Optionally, if you'd like run a production-like environment locally, you can run the same command without the `-f` option like so:
 
 ```
 docker compose up -d --build
