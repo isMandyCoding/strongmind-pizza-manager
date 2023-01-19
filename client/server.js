@@ -9,7 +9,7 @@ const initializeExpress = () => {
   app.get("/*", function (req, res) {
     res.sendFile(path.join(__dirname, "build", "index.html"));
   });
-  const port = Number(process.env.PORT) || 80;
+  const port = Number(process.env.PORT) || 8080;
   app.listen(port);
   console.log(`Listening on port: ${port}`);
 };

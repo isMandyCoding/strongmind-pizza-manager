@@ -35,7 +35,7 @@ const initializeExpress = (): Application => {
   app.use((req, resp, next) => next(new RouteNotFoundError(req.originalUrl)));
   app.use(errorHandler)
 
-  const port: number = Number(process.env.PORT) || 5000;
+  const port: number = Number(process.env.PORT) || 8080;
   app.listen(port);
   console.log(`Listening on port: ${port}`);
   return app;

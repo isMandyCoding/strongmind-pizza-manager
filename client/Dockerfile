@@ -13,4 +13,5 @@ WORKDIR /usr/src/client
 COPY --from=build /usr/src/client/build /usr/src/client/server.js ./
 COPY --from=build /usr/src/client/package*.json ./
 RUN npm ci --production
+EXPOSE 8080
 CMD ["npm", "run", "start:production"]

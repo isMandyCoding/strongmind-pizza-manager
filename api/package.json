@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "start:dev": "nodemon src/index.ts",
-    "start:production": "npx ts-node ./src/index.ts",
+    "start:production": "./node_modules/.bin/ts-node --transpile-only ./src/index.ts",
     "start": "node ./build/index.js --env=production",
     "build": "npx tsc --build tsconfig.json"
   },
