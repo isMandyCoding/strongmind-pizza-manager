@@ -153,7 +153,7 @@ describe("ToppingController", () => {
     // Arrange
     const deleteResult = new DeleteResultView(MOCK_TOPPING.id ?? 0, "success");
     const mToppingServiceDelete = jest.mocked(ToppingService.deleteExistingTopping);
-    mToppingServiceDelete.mockImplementation(async (topping) => {
+    mToppingServiceDelete.mockImplementation(async () => {
       return deleteResult;
     });
     req.body = {

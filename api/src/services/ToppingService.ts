@@ -30,7 +30,7 @@ export class ToppingService {
         });
       }
       return testTopping;
-  };
+  }
 
   static async findOneOrReject(topping: ToppingView): Promise<Topping> {
     const foundTopping = await ToppingRepository.findOne({

@@ -1,6 +1,8 @@
 import { NextFunction } from "express";
 
-export const errorCatcher = async (next: NextFunction, callBack: Function) => {
+type ErrorCatcherCallback = () => Promise<any>
+
+export const errorCatcher = async (next: NextFunction, callBack: ErrorCatcherCallback) => {
   try {
     return await callBack();
   } catch (error) {

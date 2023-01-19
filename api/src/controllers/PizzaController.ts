@@ -1,6 +1,5 @@
 import { validateOrReject } from "class-validator";
 import { NextFunction, Request, Response } from "express";
-import { DeleteResult } from "typeorm";
 import { BadUserInputError } from "../errors/ClientSafeError";
 import { errorCatcher } from "../errors/errorCatcher";
 import { PizzaService } from "../services/PizzaService";

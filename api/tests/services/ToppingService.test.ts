@@ -18,24 +18,32 @@ describe("ToppingService", () => {
       {
         id: 1,
         name: "Pepperoni",
-        pizzas: []
+        pizzas: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         id: 2,
         name: "Ham",
-        pizzas: []
+        pizzas: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         id: 3,
         name: "Mushrooms",
-        pizzas: []
+        pizzas: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ];
 
     MOCK_TOPPING = {
       id: 4,
       name: "Olives",
-      pizzas: []
+      pizzas: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
 
 
@@ -44,7 +52,7 @@ describe("ToppingService", () => {
   it("createNewTopping should create new topping", async () => {
     // Arrange
     const mToppingRepoSave = jest.mocked(ToppingRepository.save);
-    let mockTopping = new Topping();
+    const mockTopping = new Topping();
     mockTopping.id = MOCK_TOPPING.id;
     mockTopping.name = MOCK_TOPPING.name;
     mToppingRepoSave.mockResolvedValue(mockTopping);
@@ -73,7 +81,7 @@ describe("ToppingService", () => {
   it("createNewTopping with duplicate name should throw BadUserInputError", async () => {
     // Arrange
     const mToppingSave = jest.mocked(ToppingRepository.save);
-    let mockTopping = new Topping();
+    const mockTopping = new Topping();
     mockTopping.id = MOCK_TOPPING.id + 2;
     mockTopping.name = MOCK_TOPPING.name;
 

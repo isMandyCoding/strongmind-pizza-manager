@@ -96,7 +96,7 @@ export class PizzaService {
 
   static async deleteExistingPizza(pizza: PizzaView): Promise<DeleteResultView> {
     const pizzaToDelete = await PizzaService.findByIdOrReject(pizza);
-    const result = await PizzaRepository.delete(pizzaToDelete.id);
+    await PizzaRepository.delete(pizzaToDelete.id);
     return new DeleteResultView(pizza.id ?? 0, "success");
   }
 }

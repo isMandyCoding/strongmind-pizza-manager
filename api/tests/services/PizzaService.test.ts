@@ -4,7 +4,7 @@ import { Topping } from "../../src/database/entities/Topping";
 import { PizzaService } from "../../src/services/PizzaService";
 import { PizzaRepository } from "../../src/repositories/PizzaRepository";
 import { PizzaView } from "../../src/views/PizzaView";
-import { DeleteResult, Not, QueryRunner, SelectQueryBuilder, UpdateResult } from "typeorm";
+import { DeleteResult, Not } from "typeorm";
 import { BadUserInputError, EntityNotFoundError } from "../../src/errors/ClientSafeError";
 import { DeleteResultView } from "../../src/views/DeleteResultView";
 
@@ -22,18 +22,24 @@ describe("PizzaService", () => {
       {
         id: 1,
         name: "Pepperoni",
-        pizzas: []
+        pizzas: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         id: 2,
         name: "Ham",
-        pizzas: []
+        pizzas: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
         
       },
       {
         id: 3,
         name: "Mushrooms",
-        pizzas: []
+        pizzas: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ];
 
@@ -43,14 +49,16 @@ describe("PizzaService", () => {
         name: "Ultimate Porker",
         toppings: MOCK_TOPPINGS.slice(0, 1),
         toppingComposit: MOCK_TOPPINGS.slice(0, 1).join(","),
-        combineToppingNames: jest.fn()
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         id: 2,
         name: "Hamroom",
         toppings: MOCK_TOPPINGS.slice(1, 2),
         toppingComposit: MOCK_TOPPINGS.slice(1, 2).join(","),
-        combineToppingNames: jest.fn()
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ];
 
@@ -59,7 +67,8 @@ describe("PizzaService", () => {
       name: "Manager's Special",
       toppings: MOCK_TOPPINGS,
       toppingComposit: MOCK_TOPPINGS.join(","),
-      combineToppingNames: jest.fn()
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
 
   });

@@ -4,7 +4,6 @@ import { PizzaView } from "../../src/views/PizzaView";
 import { PizzaController } from "../../src/controllers/PizzaController";
 import { DeleteResultView } from "../../src/views/DeleteResultView";
 import { ToppingView } from "../../src/views/ToppingView";
-import { NextFunction, request, Request, Response, response } from "express";
 import { BadUserInputError } from "../../src/errors/ClientSafeError";
 jest.mock("../../src/services/PizzaService");
 
